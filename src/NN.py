@@ -6,8 +6,9 @@ Patrick Canny and Liam Ormiston
 
 import numpy as np
 
+# Sigmoid is our activation Function
 def sigmoid(x):
-    return 1.0 / (1 + np.exp(-1))
+    return 1.0 / (1 + np.exp(-x))
 
 def sigmoid_derivative(x):
     return x * (1.0 - x)
@@ -18,7 +19,7 @@ class NN:
         self.weights1 = np.random.rand(self.input.shape[1], 4)
         self.weights2 = np.random.rand(4,1)
         self.y = y
-        self.out = np.zeros(y.shape)
+        self.output = np.zeros(self.y.shape)
 
     def feedforward(self):
         self.layer1 = sigmoid(np.dot(self.input, self.weights1))
@@ -37,6 +38,7 @@ if __name__ == "__main__":
                   [1,0,1],
                   [1,1,1]])
     y = np.array([[0],[1],[1],[0]])
+
     nn = NN(X,y)
 
     for i in range(1500):
