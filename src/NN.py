@@ -4,11 +4,19 @@ Neural Network Implementation
 Patrick Canny and Liam Ormiston
 '''
 
+import numpy as np
+
+def sigmoid(x):
+    return 1.0 / (1 + np.exp(-1))
+
+def sigmoid_derivative(x):
+    return x * (1.0 - x)
+
 class NN:
     def __init__(self, _input, y):
         self.input = _input
         self.weights1 = np.random.rand(self.input.shape[1], 4)
-        self.weightsa = np.random.rand(4,1)
+        self.weights2 = np.random.rand(4,1)
         self.y = y
         self.out = np.zeros(y.shape)
 
@@ -23,3 +31,16 @@ class NN:
         self.weights1 += d_weights1
         self.weights2 += d_weights2
 
+if __name__ == "__main__":
+    X = np.array([[0,0,1],
+                  [0,1,1],
+                  [1,0,1],
+                  [1,1,1]])
+    y = np.array([[0],[1],[1],[0]])
+    nn = NN(X,y)
+
+    for i in range(1500):
+        nn.feedforward()
+        nn.backprop()
+
+    print(nn.output)
