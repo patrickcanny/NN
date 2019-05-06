@@ -1,23 +1,35 @@
 import numpy as np
+import pandas as pd
+from sklearn import preprocessing
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score
 
-input = np.linspace(-10, 10, 100)
+pd.options.mode.chained_assignment=None
 
+# Read Data and take a small sample
 df = pd.read_csv('../data/tox21_dense_train.csv')
 df.drop('Unnamed: 0', inplace=True, axis=1)
-df = df.head(10)
+
+# Normalize data between 0 and 1
 x = df.values
 min_max_scaler = preprocessing.MinMaxScaler()
 x_scaled = min_max_scaler.fit_transform(x)
 df = pd.DataFrame(x_scaled)
-labels = df[799].values
-data = df.loc[:, df.columns != 799].values
+
+train = df.head(100)
+test = df.tail(15)
+
+# Split into labels and features
+labels = train[799].values
+feature_set = train.loc[:, train.columns != 799].values
 labels = np.array([[x] for x in labels])
 # feature_set = np.array([[0,1,0],[0,0,1],[1,0,0],[1,1,0],[1,1,1]])
 # labels = np.array([[1,0,0,1,1]])
 # labels = labels.reshape(5,1)
 
+# Initialize weight
 np.random.seed(42)
-weights = np.random.rand(3,1)
+weights = np.random.rand(800,1)
 bias = np.random.rand(1)
 lr = 0.05
 
@@ -27,6 +39,7 @@ def sigmoid(x):
 def sigmoid_der(x):
     return sigmoid(x)*(1-sigmoid(x))
 
+print("Training...")
 for epoch in range(20000):
     inputs = feature_set
 
@@ -40,7 +53,9 @@ for epoch in range(20000):
     # backpropagation step 1
     error = z - labels
 
-    print(error.sum())
+    # print(error.sum())
+    if (epoch % 2000 == 0):
+        print('.')
 
     # backpropagation step 2
     dcost_dpred = error
@@ -53,7 +68,20 @@ for epoch in range(20000):
 
     for num in z_delta:
         bias -= lr * num
-def train():
-single_point = np.array([1,0,0])
-result = sigmoid(np.dot(single_point, weights) + bias)
-print(result)
+
+print("Done!")
+
+def predict(train):
+    true_values = train[799].values
+    train.drop(799, inplace=True, axis=1)
+    train = train.values
+    preds = []
+    for row in train:
+        preds.append(sigmoid(np.dot(row, weights) + bias))
+    print("R-Squared Accuracy: {}".format(r2_score(true_values, preds)))
+
+predict(test)
+
+# single_point = np.array([1,0,0])
+# result = sigmoid(np.dot(single_point, weights) + bias)
+# print(result)
